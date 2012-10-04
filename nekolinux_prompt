@@ -44,7 +44,7 @@ loadaverage_from_uptime()
     local n=0.0
     local str=""
 
-    n=$(uptime | awk '{ print $9}' | sed -e 's/,//g')
+    n=$(uptime | sed -e 's/.*load average: //' | awk '{ print $2}' | sed -e 's/,//g')
 
     if (( $n >= 1.0 )) ; then
 	str="%{%F{red}%}$n%{%f%}"
@@ -88,7 +88,7 @@ laptop_data()
   fi
 
 # 残量の大きさで色替え
-  remain=$(acpi -b | awk '{ print $4 }' | sed -e 's/,//g' | sed -e 's/%//g')
+  remain=$(acpi -b | awk '{ print $4 }' | sed -e 's/[,%]//g')
 
   if [ "${remain}" -gt 50 ] ; then
       color="cyan"
