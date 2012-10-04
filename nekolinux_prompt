@@ -1,0 +1,222 @@
+################################################################################
+# nekolinux プロンプト
+# Tue Oct  2 19:45:11 JST 2012
+# syunsuke.fukuda@gmail.com
+#
+# ターミナル幅でのセパレータ構築の参考URL
+# http://www.clear-code.com/blog/2011/9/5.html
+#
+################################################################################
+setopt prompt_subst
+setopt prompt_percent
+setopt transient_rprompt
+
+autoload -Uz vcs_info
+zstyle ':vcs_info:*' formats '(%s)-[%b]'
+zstyle ':vcs_info:*' actionformats '(%s)-[%b|%a]'
+
+# 充電式の場合1でバッテリー残量表示(要acpi)
+LAPTOP=1
+
+
+# ユティリティ
+
+#start_bracket
+local sb="%{%B%F{red}%}[%{%F{blue}%}[%{%b%f%}"
+
+#end_bracket
+local eb="%{%B%F{blue}%}]%{%F{red}%}]%{%b%f%}"
+
+make_line(){
+    local str=""
+    if [ ${1:-0} -gt 0 ] ; then
+	str="%{%B%F{cyan}%}${(l:$1::-:)}%{%b%f%}"
+    fi
+    echo $str
+}
+
+#joint
+jt=$(make_line 1)
+
+
+loadaverage_from_uptime()
+{
+    local n=0.0
+    local str=""
+
+    n=$(uptime | awk '{ print $9}' | sed -e 's/,//g')
+
+    if (( $n >= 1.0 )) ; then
+	str="%{%F{red}%}$n%{%f%}"
+    else
+	str="%{%F{green}%}$n%{%f%}"
+    fi
+
+    echo $str
+}
+
+laptop_data()
+{
+   ( [ "$LAPTOP" = "" ] || [ "$LAPTOP" -ne 1 ] ) && return ""
+
+# [[ Wifi Battery:100 ]]
+
+   local wifi=""
+   local connect_flag=""
+   local remain=""
+   local color=""
+
+   local str=""
+
+######################
+# wifi
+######################
+# 接続されているかの調べ方がよくわからない
+
+  if ( ifconfig wlan0 | grep wlan0 | grep RUNNING >/dev/null 2>&1 ) ;then
+      wifi=" %{%B%F{cyan}%}((Wifi))%{%b%f%}"
+  fi
+
+######################
+# 電源
+#####################
+# 充電中か、バッテリーか
+  if ( acpi -a | grep on-line >/dev/null 2>&1 ) ;then
+      connect_flag=" %{%B%F{green}%}Online%{%b%f%}:"
+      else
+      connect_flag=" %{%B%F{yellow}%}Battery%{%b%f%}:"
+  fi
+
+# 残量の大きさで色替え
+  remain=$(acpi -b | awk '{ print $4 }' | sed -e 's/,//g' | sed -e 's/%//g')
+
+  if [ "${remain}" -gt 50 ] ; then
+      color="cyan"
+  elif [ "${remain}" -gt 30 ] ; then
+      color="yellow"
+  else
+      color="red"
+  fi
+  remain="%{%B%F{${color}}%}${remain}%%%{%b%f%}"
+
+  str="${sb}${wifi}${connect_flag}${remain} $eb"
+
+  echo ${str}
+}
+
+count_prompt_characters()
+{
+# プロンプト文字列からエスケープシーケンスを外して文字数を数える
+# www.clear-code.com/blog/211/9/5.html
+    print -n -P -- "$1" | sed -e $'s/\e\[[0-9;]*m//g' | wc -m | sed -e 's/ //g'
+}
+
+
+update_nekolinux_prompt(){
+
+# 上段パーツ
+local upper_bar_left=""
+local upper_bar_right=""
+local separator=""
+local upper_bar=""
+
+# 下段パーツ
+local below_left="(%h)%(1j,_(%j),)%% "
+local below_right=""
+
+# 共通コンテンツ用
+local p_dir="$sb %d $eb"
+local p_host="%{%B%U%F{blue}%K{red}%}[[ %n at %m  ]]%{%b%f%k%u%}"
+local p_status="%(?|%{%B%F{green}%}%?|%{%B%F{red}%}%?)%{%b%f%}"
+
+
+# 長さ管理
+local len_except_left=0
+local len_rest_max=0
+local len_rest=0
+
+# バージョン管理システムの情報
+vcs_info >&/dev/null
+
+#############################
+# 場合分け
+#############################
+
+# 各モデルを構築
+
+if [ -n "${SSH_CONECTION}${REMOTEHOST}" ] ; then
+    if [ -n "$vcs_info_msg_0_" ] ; then
+    # SSH & git
+	upper_bar_left="\
+${p_host}${jt}${sb} %D{%m/%d %P %I:%M} ${eb}\
+${jt}%{%B%F{cyan}%}(%{%b%f%}${p_status}%{%B%F{cyan}%})%{%b%f%}\
+${jt}${vcs_info_msg_0_}"
+	upper_bar_right=""
+	below_right=${p_dir}
+    else
+    # SSH
+	upper_bar_left="\
+${p_host}${jt}${sb} %D{%m/%d %P %I:%M} ${eb}\
+${jt}%{%B%F{cyan}%}(%{%b%f%}${p_status}%{%B%F{cyan}%})%{%b%f%}\
+${jt}${sb} %y ${eb}\
+${jt}${sb} $(loadaverage_from_uptime) ${eb}"
+	upper_bar_right=""
+	below_right=${p_dir}
+    fi
+else
+    if [ -n "$vcs_info_msg_0_" ] ; then
+    # normal & git
+	upper_bar_left="\
+${sb} %D{%m/%d %P %I:%M} ${eb}\
+${jt}%{%B%F{cyan}%}(%{%b%f%}${p_status}%{%B%F{cyan}%})%{%b%f%}\
+${jt}${vcs_info_msg_0_}"
+	upper_bar_right="${p_dir}"
+	below_right=$(laptop_data)
+    else
+    # normal
+	upper_bar_left="\
+${sb} %D{%m/%d %P %I:%M} ${eb}\
+${jt}%{%B%F{cyan}%}(%{%b%f%}${p_status}%{%B%F{cyan}%})%{%b%f%}\
+${jt}${sb} %y ${eb}\
+${jt}${sb} $(loadaverage_from_uptime) ${eb}"
+	upper_bar_right="${p_dir}"
+	below_right=$(laptop_data)
+    fi
+fi
+
+
+#############################
+# 長さの調節
+#############################
+
+# 左部分以外の長さ
+len_except_left=$(( $COLUMNS \
+    - $(count_prompt_characters "${upper_bar_left}") ))
+
+# 更に右の%d以外の飾りを引いた長さ
+len_rest_max=$(( $len_except_left \
+    - $(count_prompt_characters "${upper_bar_right:s/%d//}") ))
+
+# ディレクトリ部分の表示を切り詰めて調節
+# %(C,%${rest_max_len}<<%d%<<,)と置くのが謎
+# %${rest_max_len}<<%d%<<だけだとうまくいかない。
+# %d無いときは問題ないか？
+upper_bar_right=${upper_bar_right:s/%d/%(C,%${len_rest_max}<..<%d%<<,)/}
+
+# スペースの余りをセパレータで埋める
+len_rest=$(( $len_except_left \
+    - $(count_prompt_characters "${upper_bar_right}") ))
+separator=$(make_line $len_rest)
+upper_bar=${upper_bar_left}${separator}${upper_bar_right}
+
+
+#############################
+# 出来上がったパーツを配置
+#############################
+PROMPT="$upper_bar"$'\n'"${below_left}"
+RPROMPT="${below_right}"
+
+
+}
+
+precmd_functions=($precmd_functions update_nekolinux_prompt)
