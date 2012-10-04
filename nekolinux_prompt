@@ -134,7 +134,7 @@ local below_right=""
 
 # 共通コンテンツ用
 local p_dir="$sb %d $eb"
-local p_host="%{%B%U%F{blue}%K{red}%}[[ %n at %m  ]]%{%b%f%k%u%}"
+local p_host="%{%B%F{green}%K{blue}%}[[ %n @ %m ]]%{%b%f%k%}"
 local p_status=""
 if [ $pre_status -eq 0 ] ; then
     p_status="%{%B%F{green}%}$pre_status%{%b%f%}"
@@ -156,23 +156,23 @@ vcs_info >&/dev/null
 
 # 各モデルを構築
 
-if [ -n "${SSH_CONECTION}${REMOTEHOST}" ] ; then
+if [ -n "${SSH_CONNECTION}${REMOTEHOST}" ] ; then
     if [ -n "$vcs_info_msg_0_" ] ; then
     # SSH & git
 	upper_bar_left="\
-${p_host}${jt}${sb} %D{%m/%d %P %I:%M} ${eb}\
+${sb} %D{%m/%d %P %I:%M} ${eb}\
 ${jt}%{%B%F{cyan}%}(%{%b%f%}${p_status}%{%B%F{cyan}%})%{%b%f%}\
 ${jt}${vcs_info_msg_0_}"
-	upper_bar_right=""
+	upper_bar_right="${p_host}"
 	below_right=${p_dir}
     else
     # SSH
 	upper_bar_left="\
-${p_host}${jt}${sb} %D{%m/%d %P %I:%M} ${eb}\
+${sb} %D{%m/%d %P %I:%M} ${eb}\
 ${jt}%{%B%F{cyan}%}(%{%b%f%}${p_status}%{%B%F{cyan}%})%{%b%f%}\
 ${jt}${sb} %y ${eb}\
 ${jt}${sb} $(loadaverage_from_uptime) ${eb}"
-	upper_bar_right=""
+	upper_bar_right="${p_host}"
 	below_right=${p_dir}
     fi
 else
