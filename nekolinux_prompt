@@ -17,7 +17,7 @@ zstyle ':vcs_info:*' formats '%{%F{cyan}%}(%{%f%} %s %{%F{cyan}%})-[%{%f%} %b %{
 zstyle ':vcs_info:*' actionformats '(%s)-[%b|%a]'
 
 # 充電式の場合1でバッテリー残量表示(要acpi)
-LAPTOP=1
+#LAPTOP=1
 
 # ユティリティ
 
