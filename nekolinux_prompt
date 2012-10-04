@@ -57,9 +57,10 @@ loadaverage_from_uptime()
 
 laptop_data()
 {
-   ( [ "$LAPTOP" = "" ] || [ "$LAPTOP" -ne 1 ] ) && return ""
-
-# [[ Wifi Battery:100 ]]
+   if ( [ "$LAPTOP" = "" ] || [ "$LAPTOP" -ne 1 ] ) ; then
+       echo "$sb %{%B%F{yellow}%}%n@%m%{%f%b%} $eb"
+       return
+   fi
 
    local wifi=""
    local connect_flag=""
@@ -99,7 +100,7 @@ laptop_data()
   fi
   remain="%{%B%F{${color}}%}${remain}%%%{%b%f%}"
 
-  str="${sb}${wifi}${connect_flag}${remain} $eb"
+  str="${sb} %{%B%F{yellow}%}%n@%m%{%f%b%}${wifi}${connect_flag}${remain} $eb"
 
   echo ${str}
 }
@@ -137,10 +138,11 @@ local p_dir="$sb %d $eb"
 local p_host="%{%B%F{green}%K{blue}%}[[ %n @ %m ]]%{%b%f%k%}"
 local p_status=""
 if [ $pre_status -eq 0 ] ; then
-    p_status="%{%B%F{green}%}$pre_status%{%b%f%}"
+    p_status="%{%F{green}%}$pre_status%{%f%}"
 else
     p_status="%{%B%F{red}%}$pre_status%{%b%f%}"
 fi
+local p_date="%{%B%F{cyan}%}%D{%m/%d}%{%b%f%}%{%B%F{white}%}%D{ %P %I:%M}%{%b%f%}"
 
 # 長さ管理
 local len_except_left=0
@@ -160,7 +162,7 @@ if [ -n "${SSH_CONNECTION}${REMOTEHOST}" ] ; then
     if [ -n "$vcs_info_msg_0_" ] ; then
     # SSH & git
 	upper_bar_left="\
-${sb} %D{%m/%d %P %I:%M} ${eb}\
+${sb} $p_date ${eb}\
 ${jt}%{%B%F{cyan}%}(%{%b%f%}${p_status}%{%B%F{cyan}%})%{%b%f%}\
 ${jt}${vcs_info_msg_0_}"
 	upper_bar_right="${p_host}"
@@ -168,7 +170,7 @@ ${jt}${vcs_info_msg_0_}"
     else
     # SSH
 	upper_bar_left="\
-${sb} %D{%m/%d %P %I:%M} ${eb}\
+${sb} $p_date ${eb}\
 ${jt}%{%B%F{cyan}%}(%{%b%f%}${p_status}%{%B%F{cyan}%})%{%b%f%}\
 ${jt}${sb} %y ${eb}\
 ${jt}${sb} $(loadaverage_from_uptime) ${eb}"
@@ -179,7 +181,7 @@ else
     if [ -n "$vcs_info_msg_0_" ] ; then
     # normal & git
 	upper_bar_left="\
-${sb} %D{%m/%d %P %I:%M} ${eb}\
+${sb} $p_date ${eb}\
 ${jt}%{%B%F{cyan}%}(%{%b%f%}${p_status}%{%B%F{cyan}%})%{%b%f%}\
 ${jt}${vcs_info_msg_0_}"
 	upper_bar_right="${p_dir}"
@@ -187,7 +189,7 @@ ${jt}${vcs_info_msg_0_}"
     else
     # normal
 	upper_bar_left="\
-${sb} %D{%m/%d %P %I:%M} ${eb}\
+${sb} $p_date ${eb}\
 ${jt}%{%B%F{cyan}%}(%{%b%f%}${p_status}%{%B%F{cyan}%})%{%b%f%}\
 ${jt}${sb} %y ${eb}\
 ${jt}${sb} $(loadaverage_from_uptime) ${eb}"
