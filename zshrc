@@ -1,3 +1,4 @@
+# -*- shell-script -*-
 # zsh config file
 #
 
@@ -13,7 +14,7 @@ path=($path
     ~/bin/(N-/))
 
 export LANG=en_US.UTF-8
-
+export EDITOR="emacs -nw"
 
 ################################################################################
 # 履歴

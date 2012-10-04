@@ -1,6 +1,7 @@
-################################################################################
-# nekolinux プロンプト
-# Tue Oct  2 19:45:11 JST 2012
+#-*- shell-script -*-###########################################################
+#
+# nekolinux プロンプト (zsh)
+# scince Tue Oct  2 19:45:11 JST 2012
 # syunsuke.fukuda@gmail.com
 #
 # ターミナル幅でのセパレータ構築の参考URL
@@ -12,12 +13,11 @@ setopt prompt_percent
 setopt transient_rprompt
 
 autoload -Uz vcs_info
-zstyle ':vcs_info:*' formats '(%s)-[%b]'
+zstyle ':vcs_info:*' formats '%{%F{cyan}%}(%{%f%} %s %{%F{cyan}%})-[%{%f%} %b %{%F{cyan}%}]%{%f%}'
 zstyle ':vcs_info:*' actionformats '(%s)-[%b|%a]'
 
 # 充電式の場合1でバッテリー残量表示(要acpi)
 LAPTOP=1
-
 
 # ユティリティ
 
@@ -111,8 +111,16 @@ count_prompt_characters()
     print -n -P -- "$1" | sed -e $'s/\e\[[0-9;]*m//g' | wc -m | sed -e 's/ //g'
 }
 
-
+##############################################################################
+#
+# アップデート用のルーチン
+#
+##############################################################################
 update_nekolinux_prompt(){
+#一番初めに%?に関する処理が必要で場所が制限されるため
+# ステータスはプロンプト拡張を使わない
+# （うまくいかないときに文字数がずれるから）
+local pre_status=$(print -n -P -- %?)
 
 # 上段パーツ
 local upper_bar_left=""
@@ -127,8 +135,12 @@ local below_right=""
 # 共通コンテンツ用
 local p_dir="$sb %d $eb"
 local p_host="%{%B%U%F{blue}%K{red}%}[[ %n at %m  ]]%{%b%f%k%u%}"
-local p_status="%(?|%{%B%F{green}%}%?|%{%B%F{red}%}%?)%{%b%f%}"
-
+local p_status=""
+if [ $pre_status -eq 0 ] ; then
+    p_status="%{%B%F{green}%}$pre_status%{%b%f%}"
+else
+    p_status="%{%B%F{red}%}$pre_status%{%b%f%}"
+fi
 
 # 長さ管理
 local len_except_left=0
@@ -190,7 +202,8 @@ fi
 #############################
 
 # 左部分以外の長さ
-len_except_left=$(( $COLUMNS \
+# rpromptと場所を合わせるため一文字減らした
+len_except_left=$(( $COLUMNS -1 \
     - $(count_prompt_characters "${upper_bar_left}") ))
 
 # 更に右の%d以外の飾りを引いた長さ
@@ -215,7 +228,6 @@ upper_bar=${upper_bar_left}${separator}${upper_bar_right}
 #############################
 PROMPT="$upper_bar"$'\n'"${below_left}"
 RPROMPT="${below_right}"
-
 
 }
 
