@@ -11,6 +11,7 @@ typeset -U path
 path=($path
     /usr/*/bin(N-/)
     /usr/local/*/bin(N-/)
+    ~/.gem/ruby/**/bin/(N-/)
     ~/bin/(N-/))
 
 export LANG=en_US.UTF-8
@@ -28,6 +29,8 @@ setopt hist_ignore_space
 setopt inc_append_history
 setopt share_history
 setopt extended_history
+setopt hist_no_store
+setopt hist_verify
 #setopt no_flow_control
 
 
@@ -52,10 +55,11 @@ autoload -U compinit && compinit
 ################################################################################
 # エイリアス
 ################################################################################
-alias l=' ls -F --color=auto'
-alias lla='ls -alhF --color=auto'
-alias ll='ls -lhF --color=auto'
-
+alias ls=' ls -F --color=auto'
+alias la=' ls -aF --color=auto'
+alias lla=' ls -alhF --color=auto'
+alias ll=' ls -lhF --color=auto'
+alias em=' emacs -nw'
 
 ################################################################################
 # キーバインド

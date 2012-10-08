@@ -43,8 +43,8 @@ loadaverage_from_uptime()
 {
     local n=0.0
     local str=""
-
-    n=$(uptime | sed -e 's/.*load average: //' | awk '{ print $2}' | sed -e 's/,//g')
+    # you can choose one of 3.   1m=>$1  5m=>$2  15m=>$3
+    n=$(uptime | sed -e 's/.*load average: //' | awk '{ print $1}' | sed -e 's/,//g')
 
     if (( $n >= 1.0 )) ; then
 	str="%{%F{red}%}$n%{%f%}"
