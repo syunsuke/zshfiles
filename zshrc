@@ -60,6 +60,8 @@ alias la=' ls -aF --color=auto'
 alias lla=' ls -alhF --color=auto'
 alias ll=' ls -lhF --color=auto'
 alias em=' emacs -nw'
+alias berails='bundle exec rails'
+alias be='bundle exec'
 
 ################################################################################
 # キーバインド
