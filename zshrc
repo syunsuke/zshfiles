@@ -82,4 +82,5 @@ bindkey -e
 
 PROMPT="%% "
 
-source ~/.zsh.d/nekolinux_prompt
+#source ~/.zsh.d/nekolinux_prompt
+source ~/.zsh.d/simple_prompt
