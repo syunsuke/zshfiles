@@ -85,3 +85,4 @@ PROMPT="%% "
 
 #source ~/.zsh.d/nekolinux_prompt
 source ~/.zsh.d/simple_prompt
+source ~/.zsh.d/git_info_prompt
