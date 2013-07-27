@@ -37,13 +37,14 @@ function rprompt-git-current-branch {
 }
 
 # -------------- 使い方 ---------------- #
-RPROMPT='`rprompt-git-current-branch`'
+#RPROMPT='`rprompt-git-current-branch`'
 
 
 
 
-PROMPT="%{${fg_no_bold[cyan]}%}%M: %3~%{${reset_color}%}
-$ "
+PROMPT="
+%{${fg_no_bold[cyan]}%}%T %M: %3~%{${reset_color}%}
+%# > "
 
 
 PROMPT2='[%n]> '
