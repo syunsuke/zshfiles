@@ -12,10 +12,12 @@ path=($path
     /usr/*/bin(N-/)
     /usr/local/*/bin(N-/)
     ~/.gem/ruby/**/bin/(N-/)
+    ~/.cabal/bin/(N-/)
     ~/bin/(N-/))
 
 export LANG=en_US.UTF-8
-export EDITOR="emacs -nw"
+export EDITOR="vim"
+export TERM=xterm-256color
 
 ################################################################################
 # 履歴
